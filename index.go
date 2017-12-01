@@ -1,20 +1,21 @@
 package main
 
 import (
-	"fmt"
-	"io"
 	"log"
 	"net/http"
+
+	"github.com/aqrun/photoweb/controllers"
 )
 
 func main(){
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request){
-		io.WriteString(w, "This is index")
-	})
-	http.HandleFunc("/upload", UploadHandler)
+	http.HandleFunc("/", controllers.ActionIndex)
+	http.HandleFunc("/upload", controllers.ActionUpload)
+	http.HandleFunc("/view", controllers.ActionView)
+
+
 	err := http.ListenAndServe(":8081", nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err.Error())
 	}
-	fmt.Println("Listen at http://localhost:8081")
+	log.Println("Listen at http://localhost:8081")
 }
