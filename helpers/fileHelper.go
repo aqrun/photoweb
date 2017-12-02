@@ -1,6 +1,9 @@
 package helpers
 
-import "os"
+import (
+	"os"
+	"net/http"
+)
 
 func IsFileExist(path string) bool {
 	_, err := os.Stat(path)
@@ -8,4 +11,10 @@ func IsFileExist(path string) bool {
 		return true
 	}
 	return os.IsExist(err)
+}
+
+func RenderHtml(w http.ResponseWriter, tmpl string,
+	locals map[string]interface{}) (err error) {
+	err = Templates[tmpl].Execute(w, locals)
+	return
 }

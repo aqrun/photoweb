@@ -11,37 +11,39 @@ import (
 )
 
 
+type FileController struct{
+
+}
+
 
 // index
-func ActionIndex(w http.ResponseWriter, r *http.Request) {
-	fileInfoArr, err := ioutil.ReadDir(configs.UPLOAD_DIR)
+func ActionFileIndex(w http.ResponseWriter, r *http.Request) {
+	fileInfoArr, err := ioutil.ReadDir(configs.UploadDir)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	var listHtml string
+	locals := make(map[string]interface{})
+	images := []string{}
 	for _, fileInfo := range fileInfoArr {
-		imgid := fileInfo.Name()
-		listHtml += "<li><a href=\"/view?id=" + imgid + "\">" + imgid + "</a></li>"
+		images = append(images, fileInfo.Name())
 	}
-	io.WriteString(w, "<html><ol>"+ listHtml +"</ol></html>")
+	locals["images"] = images
+	if err := helpers.RenderHtml(w, "list", locals); err != nil{
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 }
 
 
 // /upload
-func ActionUpload(w http.ResponseWriter, r *http.Request) {
+func ActionFileUpload(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-
-		io.WriteString(w, `
-<html>
-	<form method="post" action="upload" enctype="multipart/form-data">
-		Choose and image to upload: <input type="file" name="image"/>
-		<input type="submit" value="Upload"/>
-	</form>
-</html>
-		`)
-		return
+		if err := helpers.RenderHtml(w, "upload", nil); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	if r.Method == "POST" {
@@ -52,7 +54,7 @@ func ActionUpload(w http.ResponseWriter, r *http.Request) {
 		}
 		filename := h.Filename
 		defer f.Close()
-		t, err := os.Create(configs.UPLOAD_DIR + "/" + filename)
+		t, err := os.Create(configs.UploadDir + "/" + filename)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -69,9 +71,9 @@ func ActionUpload(w http.ResponseWriter, r *http.Request) {
 }
 
 // view
-func ActionView(w http.ResponseWriter, r *http.Request){
+func ActionFileView(w http.ResponseWriter, r *http.Request){
 	imageId := r.FormValue("id")
-	imagePath := configs.UPLOAD_DIR + "/" + imageId
+	imagePath := configs.UploadDir + "/" + imageId
 	if exists := helpers.IsFileExist(imagePath); !exists {
 		http.NotFound(w, r)
 		return

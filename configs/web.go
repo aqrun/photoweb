@@ -1,5 +1,6 @@
 package configs
 
 const (
-	UPLOAD_DIR = "/Users/aqrun/goprojects/src/github.com/aqrun/photoweb/public/uploads"
+	UploadDir = "E:/goprojects/src/github.com/aqrun/photoweb/public/uploads"
+	TemplateDir = "E:/goprojects/src/github.com/aqrun/photoweb/views/file"
 )
